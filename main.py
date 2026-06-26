@@ -66,3 +66,66 @@ def get_book(book: str):
         "book": book,
         "chapters": [row[0] for row in chapters]
     }
+
+
+@app.get("/books/{book}/{chapter}")
+def get_chapter(book: str, chapter: int):
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    #Step 1: Find the book
+    cursor.execute("""
+        SELECT id
+        FROM chapters
+        WHERE book= %s
+        AND chapter_number = %s;           ;
+    """, (book,))
+
+    book_result = cursor.fetchone()
+
+    if not book_result:
+        cursor.close()
+        conn.close()
+        return {"error": "Book not found"}
+    
+    book_id = book_result[0]
+
+
+    # Step2: Find the chapter
+    cursor.execute(""" 
+    SELECT id
+    FROM chapters
+    WHERE book_id = %s
+    AND chapter_number = %s;
+""", (book_id, chapter))
+    
+    chapter_result = cursor.fetchone()
+
+    if not chapter_result:
+        cursor.close()
+        conn.close()
+        return {"error": "Chapter not found"}
+
+    chapter_id = chapter_result[0]
+    
+        # Step 3: Get verses
+    cursor.execute("""
+        SELECT verse_number, verse_text
+        FROM verses
+        WHERE chapter_id = %s
+        ORDER BY verse_number;
+    """, (chapter_id,))
+
+    verses = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return [
+        {
+            "verse": row[0],
+            "text": row[1]
+        }
+        for row in verses
+    ]
