@@ -129,3 +129,31 @@ def get_chapter(book: str, chapter: int):
         }
         for row in verses
     ]
+
+#Create the route
+@app.get("/verse/{id}")
+def get_verse(id: int):
+
+    conn = get_connection() #opens a connection to PostgreSQL
+    
+    cursor = conn.cursor
+
+    #Run the SQL
+    cursor.execute(""" 
+        SELECT verse_number, verse_text
+        FROM verses
+        WHERE verse_id = %s
+    """, (id, ))
+
+    result = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+
+    if not result:
+        return {"error": "Verse not found"}
+    
+    return{
+        "verse": result[0],
+        "text" : result[1]
+    }
