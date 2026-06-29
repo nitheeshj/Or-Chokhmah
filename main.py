@@ -77,9 +77,8 @@ def get_chapter(book: str, chapter: int):
     #Step 1: Find the book
     cursor.execute("""
         SELECT id
-        FROM chapters
-        WHERE book= %s
-        AND chapter_number = %s;           ;
+        FROM books
+        WHERE name = %s ;
     """, (book,))
 
     book_result = cursor.fetchone()
@@ -136,13 +135,13 @@ def get_verse(id: int):
 
     conn = get_connection() #opens a connection to PostgreSQL
     
-    cursor = conn.cursor
+    cursor = conn.cursor()
 
     #Run the SQL
     cursor.execute(""" 
         SELECT verse_number, verse_text
         FROM verses
-        WHERE verse_id = %s
+        WHERE id = %s
     """, (id, ))
 
     result = cursor.fetchone()
