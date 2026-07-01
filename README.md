@@ -1,233 +1,394 @@
 # Or-Chokhmah
 
-> A RESTful Bible API built with FastAPI and PostgreSQL to demonstrate backend engineering concepts.
+> **Wisdom for every seeker. AI-powered Bible Study Platform built with FastAPI and PostgreSQL.**
 
-## About
+## Overview
 
-Or-Chokhmah is a backend engineering portfolio project focused on building a production-style Bible API.
+Or-Chokhmah is a production-oriented backend project that provides a complete Bible API and serves as the foundation for an AI-powered Bible study assistant.
 
-The goal of this project is not to recreate existing Bible applications, but to deepen understanding of backend development through practical implementation of:
+The project demonstrates modern backend engineering concepts such as REST API design, relational database modeling, authentication, search, caching, and API documentation. It is also designed so that AI agents can use the backend as a trusted source of Scripture instead of relying solely on LLM knowledge.
 
-- REST API design
-- Relational database modeling
-- SQL
-- Authentication
-- Caching
-- Docker
-- Deployment
-- Clean project architecture
+The long-term goal is to build an intelligent Bible study platform where AI retrieves verses, searches Scripture, understands user context, and assists with Bible study through tool calling and retrieval-based workflows.
 
 ---
 
-## Tech Stack
+# Features
 
-- Python
-- FastAPI
-- PostgreSQL
-- psycopg2
-- Uvicorn
+## Bible API
 
-**Planned**
+* List all Bible books
+* Retrieve chapters
+* Retrieve verses
+* Verse lookup
+* Structured JSON responses
+* Complete Bible stored in PostgreSQL
 
-- JWT Authentication
-- Redis
-- Docker
-- Nginx
-- Linux Deployment
-
----
-
-## Project Structure
+Example endpoints
 
 ```
-or-chokhmah/
-│
-├── main.py
-├── database.py
-├── requirements.txt
-├── README.md
-└── ...
+GET /books
+
+GET /books/{book}
+
+GET /books/{book}/{chapter}
+
+GET /books/{book}/{chapter}/{verse}
 ```
-
----
-
-## Database Design
-
-Current schema:
-
-```
-Books
-│
-└── Chapters
-      │
-      └── Verses
-```
-
-Tables
-
-- books
-- chapters
-- verses
-
----
-
-## API Endpoints
-
-### Bible
-
-| Method | Endpoint | Description |
-|---------|----------|-------------|
-| GET | /books | List all books |
-| GET | /books/{book} | Get chapters of a book |
-| GET | /books/{book}/{chapter} | Get all verses in a chapter |
-| GET | /verse/{id} | Get a verse by ID |
 
 ---
 
 ## Planned Features
 
-### Authentication
-
-- User registration
-- Login
-- JWT Authentication
-
-### Bookmarks
-
-- Save verses
-- Remove bookmarks
-- View bookmarks
-
-### Notes
-
-- Create notes
-- Edit notes
-- Delete notes
-
-### Search
-
-- Search verses
-- PostgreSQL Full-Text Search
-
-### Performance
-
-- Redis caching
-- Query optimization
-- Database indexing
-
-### Deployment
-
-- Docker
-- Docker Compose
-- Nginx
-- Linux VPS deployment
+* JWT Authentication
+* User Registration & Login
+* Personal Notes
+* Bookmarks
+* Reading History
+* Bible Search
+* Cross References
+* Redis Cache
+* Docker Deployment
+* Testing
+* CI/CD
 
 ---
 
-## Learning Goals
+# AI Roadmap
 
-This project is designed to strengthen understanding of:
+Or-Chokhmah is designed so that an AI agent can interact with backend APIs as tools.
 
-- FastAPI
-- PostgreSQL
-- SQL
-- Database relationships
-- Indexes
-- REST API design
-- Authentication
-- Authorization
-- Docker
-- Redis
-- Linux deployment
+Instead of:
+
+```
+User
+   ↓
+LLM
+   ↓
+Answer
+```
+
+The architecture becomes:
+
+```
+                 User
+                  │
+                  ▼
+            AI Study Assistant
+                  │
+     ┌────────────┼────────────┐
+     ▼            ▼            ▼
+ Bible API     Search Tool   User Memory
+     │            │            │
+     ▼            ▼            ▼
+ PostgreSQL   PostgreSQL   PostgreSQL
+```
+
+The AI agent retrieves authoritative Bible data from the backend before generating responses.
 
 ---
 
-## Getting Started
+# Planned AI Capabilities
 
-### Clone the repository
-
-```bash
-git clone https://github.com/<your-username>/or-chokhmah.git
-cd or-chokhmah
-```
-
-### Create a virtual environment
-
-```bash
-python -m venv .venv
-```
-
-Activate it
-
-Linux/macOS
-
-```bash
-source .venv/bin/activate
-```
-
-Windows
-
-```bash
-.venv\Scripts\activate
-```
-
-### Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### Run the API
-
-```bash
-uvicorn main:app --reload
-```
-
-Open
+### Verse Retrieval
 
 ```
-http://127.0.0.1:8000/docs
-```
+User:
+Show me Romans 8:28
 
-to access the Swagger UI.
+↓
+
+Agent
+
+↓
+
+Calls Bible API
+
+↓
+
+Returns verse
+```
 
 ---
 
-## Roadmap
+### Bible Search
 
-- [x] Project setup
-- [x] PostgreSQL database
-- [x] Database schema
-- [x] GET /books
-- [x] GET /books/{book}
-- [x] GET /books/{book}/{chapter}
-- [ ] GET /verse/{id}
-- [ ] JWT Authentication
-- [ ] Bookmarks
-- [ ] Notes
-- [ ] Search
-- [ ] Redis
-- [ ] Docker
-- [ ] Deployment
+```
+User:
+Find verses about hope
 
----
+↓
 
-## Why this project?
+Agent
 
-Backend engineering is more than writing API endpoints.
+↓
 
-This project explores how production backend systems are designed by covering:
+Calls Search API
 
-- API development
-- Database modeling
-- Query optimization
-- Authentication
-- Caching
-- Deployment
-- Software engineering best practices
+↓
+
+Returns matching verses
+```
 
 ---
 
-## License
+### Verse Explanation
 
-This project is licensed under the MIT License.
+```
+User:
+Explain John 3:16
+
+↓
+
+Agent retrieves verse
+
+↓
+
+LLM explains passage
+
+↓
+
+Grounded response
+```
+
+---
+
+### Personalized Study
+
+Future versions will allow the AI assistant to:
+
+* Explain bookmarked verses
+* Continue previous reading sessions
+* Summarize personal notes
+* Generate Bible study outlines
+* Suggest reading plans
+* Compare passages
+* Create reflection questions
+
+---
+
+# Tech Stack
+
+| Layer                      | Technology        |
+| -------------------------- | ----------------- |
+| Language                   | Python            |
+| Framework                  | FastAPI           |
+| Database                   | PostgreSQL        |
+| ORM / Database Driver      | psycopg2          |
+| API Documentation          | Swagger / OpenAPI |
+| Validation                 | Pydantic          |
+| Authentication (Planned)   | JWT               |
+| Cache (Planned)            | Redis             |
+| Containerization (Planned) | Docker            |
+| AI Integration (Planned)   | OpenAI / Gemini   |
+| Retrieval (Planned)        | RAG               |
+
+---
+
+# Project Structure
+
+```
+or-chokhmah/
+
+│
+├── app/
+│   ├── main.py
+│   ├── database.py
+│   ├── routers/
+│   ├── services/
+│   ├── models/
+│   ├── schemas/
+│   └── utils/
+│
+├── bible_data/
+│
+├── import_bible.py
+│
+├── requirements.txt
+│
+├── README.md
+│
+└── .env
+```
+
+---
+
+# Database Design
+
+```
+Books
+------
+id
+name
+testament
+
+Chapters
+---------
+id
+book_id
+chapter_number
+
+Verses
+-------
+id
+chapter_id
+verse_number
+text
+```
+
+Relationships
+
+```
+Book
+
+1
+
+↓
+
+Many Chapters
+
+↓
+
+Many Verses
+```
+
+---
+
+# API Documentation
+
+Swagger UI
+
+```
+http://localhost:8000/docs
+```
+
+ReDoc
+
+```
+http://localhost:8000/redoc
+```
+
+---
+
+# Current Progress
+
+* FastAPI project setup
+* PostgreSQL integration
+* Relational database schema
+* Bible import script
+* REST API endpoints
+* Swagger documentation
+
+---
+
+# Planned Roadmap
+
+### Phase 1
+
+* Complete Bible API
+* Import full Bible
+* Validation
+* Error handling
+
+### Phase 2
+
+* SQL optimization
+* Clean project architecture
+
+### Phase 3
+
+* JWT Authentication
+
+### Phase 4
+
+* Notes
+
+### Phase 5
+
+* Bookmarks
+
+### Phase 6
+
+* Search
+
+### Phase 7
+
+* AI Tool Calling
+
+### Phase 8
+
+* Retrieval-Augmented Generation (RAG)
+
+### Phase 9
+
+* Redis Cache
+
+### Phase 10
+
+* Docker & Deployment
+
+---
+
+# Why This Project?
+
+Most Bible applications simply display Scripture.
+
+Or-Chokhmah is designed as a backend platform that enables AI systems to retrieve trusted Scripture through APIs, reducing hallucinations and demonstrating how backend engineering and AI can work together.
+
+The project focuses on:
+
+* Backend Engineering
+* Database Design
+* REST APIs
+* SQL
+* Authentication
+* AI Tool Calling
+* Retrieval-Augmented Generation
+* Production Software Design
+
+---
+
+# Learning Objectives
+
+This project is intended to deepen understanding of:
+
+* FastAPI
+* PostgreSQL
+* REST API Design
+* Database Normalization
+* SQL Queries
+* JWT Authentication
+* API Documentation
+* Redis
+* Docker
+* Agentic Engineering
+* Tool Calling
+* RAG
+* Production AI Systems
+
+---
+
+# Future Vision
+
+Or-Chokhmah aims to evolve into an AI-powered Bible study platform capable of:
+
+* Understanding natural language questions
+* Retrieving Scripture from backend APIs
+* Searching Bible knowledge
+* Remembering user study history
+* Building personalized Bible studies
+* Integrating commentaries through RAG
+* Supporting intelligent Bible research while grounding responses in trusted data
+
+---
+
+# License
+
+This project is intended for educational purposes and backend engineering practice. Please ensure that any Bible translation included is used in accordance with its respective licensing terms.
+
+---
+
+## Author
+
+**Nitheesh**
+
+Backend Engineering • FastAPI • PostgreSQL • AI Engineering • Agentic Systems
