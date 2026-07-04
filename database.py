@@ -4,6 +4,7 @@ def get_connection():
     return psycopg2.connect(
         host="localhost",
         database="bibledb",
-        user="postgres",
-        password="postgres123"
+        user="nitheesh",
+        password="password123",
+        port=5432
     )

@@ -38,9 +38,8 @@ def insert_chapter(cursor, book_id, chapter_number):
 
 def insert_verse(cursor,
                  chapter_id,
-                 verse_number,
-                 verse_text,
-                 translation_id=1):
+                 verse_number
+               ):
     """
     Insert one verse into the verses table.
     """
@@ -49,20 +48,41 @@ def insert_verse(cursor,
         INSERT INTO verses
         (
             chapter_id,
-            verse_number,
-            verse_text,
-            translation_id
+           verse_number
         )
-        VALUES (%s, %s, %s, %s);
+        VALUES (%s, %s)
+        RETURNING id;
     """,
     (
         chapter_id,
         verse_number,
-        verse_text,
-        translation_id
     ))
+    return cursor.fetchone()[0]
 
+def insert_verse_text(
+    cursor,
+    verse_id,
+    translation_id,
+    text
+):
+    """
+    Insert one verse text into the verse_texts table.
+    """
 
+    cursor.execute("""
+        INSERT INTO verse_texts
+        (
+            verse_id,
+            translation_id,
+            text
+        )
+        VALUES (%s, %s, %s);
+    """,
+    (
+        verse_id,
+        translation_id,
+        text,
+    ))
 # --------------------------------------------------
 # Dataset Location
 # --------------------------------------------------
@@ -142,7 +162,72 @@ for item in data:
     verse_text = item["value"].strip()
 
     # ------------------------------------------
-    # New chapter?
+    # First verse in the entire book?
+    # ------------------------------------------
+
+    if current_verse is None:
+
+        current_chapter = chapter_number
+
+        chapter_id = insert_chapter(
+            cursor,
+            book_id,
+            chapter_number
+        )
+
+        chapter_count += 1
+
+        current_verse = verse_number
+        current_text = verse_text
+
+        print(f"Inserted Chapter {chapter_number}")
+
+        continue
+
+
+    # ------------------------------------------
+    # Same verse?
+    #
+    # Some verses are split into multiple JSON
+    # records. Join them together.
+    # ------------------------------------------
+
+    if (
+        chapter_number == current_chapter
+        and
+        verse_number == current_verse
+    ):
+
+        current_text += " " + verse_text
+        continue
+
+
+    # ------------------------------------------
+    # A new verse has started.
+    #
+    # Save the previous verse first.
+    # ------------------------------------------
+
+    verse_id = insert_verse(
+        cursor,
+        chapter_id,
+        current_verse
+    )
+
+    insert_verse_text(
+        cursor,
+        verse_id,
+        1,
+        current_text
+    )
+
+    verse_count += 1
+
+
+    # ------------------------------------------
+    # Did the chapter change?
+    #
+    # If yes, create the next chapter.
     # ------------------------------------------
 
     if chapter_number != current_chapter:
@@ -159,80 +244,38 @@ for item in data:
 
         print(f"Inserted Chapter {chapter_number}")
 
-    # ------------------------------------------
-    # First verse?
-    # ------------------------------------------
-
-    if current_verse is None:
-
-        current_verse = verse_number
-        current_text = verse_text
-
-        continue
 
     # ------------------------------------------
-    # Same verse?
-    #
-    # Example:
-    #
-    # Genesis 3:13
-    # Section 1
-    # Section 2
-    #
-    # Combine both pieces.
+    # Begin collecting the new verse.
     # ------------------------------------------
 
-    if verse_number == current_verse:
-
-        current_text += " " + verse_text
-
-    # ------------------------------------------
-    # New verse?
-    #
-    # Save previous verse.
-    # Start collecting next verse.
-    # ------------------------------------------
-
-    else:
-
-        insert_verse(
-            cursor,
-            chapter_id,
-            current_verse,
-            current_text
-        )
-
-        verse_count += 1
-
-        current_verse = verse_number
-        current_text = verse_text
+    current_verse = verse_number
+    current_text = verse_text
 
 
 # --------------------------------------------------
-# VERY IMPORTANT
+# Insert the final verse.
 #
-# The last verse never triggers the
-# "new verse" condition.
-#
-# Insert it manually.
+# The loop finishes without ever seeing another
+# verse, so we save it manually.
 # --------------------------------------------------
 
 if current_verse is not None:
 
-    insert_verse(
+    verse_id = insert_verse(
         cursor,
         chapter_id,
-        current_verse,
+        current_verse
+    )
+
+    insert_verse_text(
+        cursor,
+        verse_id,
+        1,
         current_text
     )
 
     verse_count += 1
-
-
-# --------------------------------------------------
-# Save everything
-# --------------------------------------------------
-
 conn.commit()
 
 cursor.close()
