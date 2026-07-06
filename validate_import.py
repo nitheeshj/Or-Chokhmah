@@ -2,22 +2,32 @@ import json
 from pathlib import Path
 
 from database import get_connection
-
 from books import BOOKS
 
 # --------------------------------------------------
 # Dataset Location
+#
+# The entire Bible is stored in ONE JSON file.
 # --------------------------------------------------
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 
-DATASET_PATH = (
+JSON_FILE = (
     PROJECT_ROOT.parent
-    / "world-english-bible"
+    / "bible"
     / "json"
+    / "en_kjv.json"
 )
 
+# --------------------------------------------------
+# Load the Bible.
+#
+# This dataset contains a UTF-8 BOM, so use
+# utf-8-sig instead of utf-8.
+# --------------------------------------------------
 
+with open(JSON_FILE, "r", encoding="utf-8-sig") as file:
+    bible = json.load(file)
 
 # --------------------------------------------------
 # Connect to PostgreSQL
@@ -28,44 +38,46 @@ cursor = conn.cursor()
 
 print("=" * 70)
 
-
 # --------------------------------------------------
-# Check every book
+# Compare every book.
+#
+# zip() matches:
+#
+# Genesis JSON  <-> Genesis in BOOKS
+# Exodus JSON   <-> Exodus in BOOKS
+# ...
+# Revelation JSON <-> Revelation in BOOKS
 # --------------------------------------------------
 
-for filename, book_name, testament in BOOKS:
-
-    json_file = DATASET_PATH / f"{filename}.json"
-
-    with open(json_file, "r", encoding="utf-8") as file:
-        data = json.load(file)
-
-    # ------------------------------------------
-    # Collect every UNIQUE verse found in JSON.
+for book_data, (book_name, testament) in zip(bible, BOOKS):
+    # ----------------------------------------------
+    # Collect every verse from the JSON.
     #
-    # A set automatically removes duplicates.
-    # ------------------------------------------
+    # A set removes duplicates automatically.
+    #
+    # Each verse is stored as:
+    #
+    # (chapter_number, verse_number)
+    # ----------------------------------------------
 
     json_verses = set()
 
-    for item in data:
+    chapters = book_data["chapters"]
 
-        if item.get("type") not in (
-            "paragraph text",
-            "line text",
-        ):
-            continue
+    for chapter_number, chapter in enumerate(chapters, start=1):
 
-        json_verses.add(
-            (
-                item["chapterNumber"],
-                item["verseNumber"],
+        for verse_number, verse_text in enumerate(chapter, start=1):
+
+            json_verses.add(
+                (
+                    chapter_number,
+                    verse_number,
+                )
             )
-        )
 
-    # ------------------------------------------
-    # Read verses from PostgreSQL.
-    # ------------------------------------------
+    # ----------------------------------------------
+    # Read every verse from PostgreSQL.
+    # ----------------------------------------------
 
     cursor.execute(
         """
@@ -84,9 +96,9 @@ for filename, book_name, testament in BOOKS:
 
     db_verses = set(cursor.fetchall())
 
-    # ------------------------------------------
-    # Print comparison.
-    # ------------------------------------------
+    # ----------------------------------------------
+    # Compare JSON with PostgreSQL.
+    # ----------------------------------------------
 
     print(
         f"{book_name:<20}"
@@ -100,9 +112,8 @@ for filename, book_name, testament in BOOKS:
     else:
         print("   MISMATCH")
 
-
 # --------------------------------------------------
-# Close PostgreSQL
+# Close PostgreSQL connection.
 # --------------------------------------------------
 
 cursor.close()
