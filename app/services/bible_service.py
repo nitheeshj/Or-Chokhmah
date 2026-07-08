@@ -1,16 +1,11 @@
-from fastapi import APIRouter, HTTPException
-from database import get_connection
+from app.database import get_connection
+from fastapi import  HTTPException
 
-# Create a router object.
-router = APIRouter()
 
-# -----------------------------
-# GET /books
-# -----------------------------
-@router.get("/books")
 def get_books():
 
     conn = get_connection()
+
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -22,15 +17,11 @@ def get_books():
     rows = cursor.fetchall()
 
     cursor.close()
+
     conn.close()
 
     return [row[0] for row in rows]
 
-
-# -----------------------------
-# GET /books/{book}
-# -----------------------------
-@router.get("/books/{book}")
 def get_book(book: str):
 
     conn = get_connection()
@@ -72,10 +63,7 @@ def get_book(book: str):
         "chapters": [row[0] for row in chapters]
     }
 
-# -----------------------------
-# GET /books/{book}/{chapter}
-# -----------------------------
-@router.get("/books/{book}/{chapter}")
+
 def get_chapter(book: str, chapter: int):
 
     conn = get_connection()
@@ -149,10 +137,6 @@ def get_chapter(book: str, chapter: int):
     ]
 
 
-# -----------------------------
-# GET /books/{book}/{chapter}/{verse}
-# -----------------------------
-@router.get("/books/{book}/{chapter}/{verse}")
 def get_verse(
     book: str,
     chapter: int,
@@ -232,17 +216,6 @@ def get_verse(
         "text": verse_result[1]
     }
 
-
-# --------------------------------------------
-# Search the Bible using a keyword
-#
-# Example:
-# GET /search?q=hope
-#
-# q is called a query parameter.
-# FastAPI automatically extracts it from the URL.
-# --------------------------------------------
-@router.get("/search")
 def search_bible(q: str):
 
 

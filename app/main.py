@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from routers import bible
+from app.routers import bible
 
 app = FastAPI()
 
