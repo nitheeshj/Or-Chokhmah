@@ -19,12 +19,12 @@ env/
 
 # Mypy
 .mypy_cache/
+# OS
+.DS_Store
 
 # Logs
 *.log
 
-# macOS
-.DS_Store
 
 # Linux
 *~
