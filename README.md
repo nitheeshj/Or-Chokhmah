@@ -347,7 +347,7 @@ But it does **not yet**:
 ## Clone
 
 ```bash
-git clone https://github.com/<your-username>/Or-Chokhmah.git
+git clone https://github.com/nitheeshj/Or-Chokhmah.git
 
 cd Or-Chokhmah
 ```
