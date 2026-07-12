@@ -278,7 +278,9 @@ def search_bible(q: str):
         ORDER BY
             b.id,
             c.chapter_number,
-            v.verse_number;
+            v.verse_number
+
+        LIMIT 20;
 
     """, (f"%{q}%",))
 
@@ -291,7 +293,7 @@ def search_bible(q: str):
     #   ("Romans",8,28,"All things...")
     # ]
     # ----------------------------------------
-    rows = cursor.fetchall()
+    rows = cursor.fetchmany(20)
 
     # Close cursor and database connection
     cursor.close()

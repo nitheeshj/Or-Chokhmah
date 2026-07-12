@@ -90,3 +90,21 @@ class BibleClient:
         response.raise_for_status()
 
         return response.json()
+    
+    # ---------------------------------------------------
+    # GET /search
+    # ---------------------------------------------------
+
+    def search(self, query):
+        """
+        Search the Bible for a keyword.
+        """
+
+        response = requests.get(
+            f"{self.base_url}/search",
+            params={"q": query}
+        )
+
+        response.raise_for_status()
+
+        return response.json()

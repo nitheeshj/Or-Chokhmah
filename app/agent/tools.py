@@ -16,3 +16,4 @@ def get_verse(book, chapter, verse):
 
 def search_bible(query):
     return client.search(query)
+

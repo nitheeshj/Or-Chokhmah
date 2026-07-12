@@ -1,248 +1,132 @@
-# Or-Chokhmah
+# Or-Chokhmah – AI Powered Bible Agent
 
 ## Overview
 
-Or-Chokhmah is a production-oriented Bible Reader API built with FastAPI and PostgreSQL.
+Or-Chokhmah is an AI-powered Bible assistant built from scratch using:
 
-The project is designed to strengthen backend engineering skills through a real-world application while providing a foundation for future AI-powered Bible study tools.
-
-Rather than building a simple CRUD application, the project focuses on:
-
-- REST API design
-- PostgreSQL database design
-- SQL
-- Data modelling
-- Authentication
-- Search
-- Performance
-- Agentic AI integration
-
----
-
-## Motivation
-
-Most Bible applications focus on the user interface.
-
-Or-Chokhmah focuses on the backend.
-
-The goal is to build a scalable, production-style backend that can later serve as a trusted tool for AI agents.
-
----
-
-## Tech Stack
-
+- FastAPI
+- PostgreSQL
 - Python
-- FastAPI
-- PostgreSQL
-- psycopg2
-- Uvicorn
-- Swagger / OpenAPI
+- Google Gemini API
+- Function Calling (Tool Calling)
 
-Planned
-
-- JWT Authentication
-- Redis
-- Docker
-- AI Agents
-- RAG
+The project demonstrates how an LLM can interact with external tools instead of relying only on its pretrained knowledge.
 
 ---
 
-## Database Design
+## Architecture
 
-```
-books
-│
-├── chapters
-│
-├── verses
-│
-└── verse_texts
-        │
-        └── translations
-```
-
-Current tables
-
-- books
-- chapters
-- verses
-- verse_texts
-- translations
+User
+↓
+Gemini
+↓
+Function Calling
+↓
+agent.py
+↓
+tools.py
+↓
+client.py
+↓
+FastAPI
+↓
+PostgreSQL
 
 ---
 
-## Features
+## Components
 
-Current
+### FastAPI
 
-- Import Bible dataset into PostgreSQL
-- Normalized relational schema
-- Bible Reader API
-- Swagger documentation
+Provides REST APIs for accessing Bible data.
 
-Planned
+Examples:
 
-- Complete Bible import
-- Search API
-- Authentication
-- Bookmarks
-- Notes
-- Reading history
-- Redis caching
-- Docker
-- AI Agent integration
+- GET /books
+- GET /books/{book}
+- GET /books/{book}/{chapter}
+- GET /books/{book}/{chapter}/{verse}
+- GET /search?q=love
 
 ---
 
-## API Endpoints
+### client.py
 
-Current
-
-```
-GET /books
-GET /books/{book}
-GET /books/{book}/{chapter}
-GET /books/{book}/{chapter}/{verse}
-```
-
-Planned
-
-```
-GET /search
-POST /register
-POST /login
-GET /bookmarks
-GET /notes
-```
+A reusable Python HTTP client that communicates with the FastAPI server.
 
 ---
 
-## Project Structure
+### tools.py
 
-```
-Or-Chokhmah/
+Wraps the HTTP client into Python functions that can be exposed to the LLM.
 
-├── main.py
-├── database.py
-├── import_bible.py
-├── requirements.txt
-├── README.md
-├── venv/
-└── world-english-bible/
-```
+Examples:
 
-Later
-
-```
-app/
-
-routers/
-schemas/
-models/
-services/
-utils/
-```
+- get_verse()
+- get_book()
+- get_chapter()
+- search_bible()
 
 ---
 
-## Learning Objectives
+### tool_schemas.py
 
-This project is intended to develop practical knowledge of
+Defines tool schemas using Gemini Function Declarations.
 
-- REST APIs
-- FastAPI
-- PostgreSQL
-- SQL
-- Database normalization
-- Transactions
-- Indexes
-- Backend architecture
-- Authentication
-- Caching
-- AI Tool Calling
+This tells Gemini:
+
+- what tools exist
+- what parameters they require
+- when they can be used
 
 ---
 
-## Roadmap
+### agent.py
 
-### Phase 1
+The orchestrator.
 
-- [x] PostgreSQL setup
-- [x] Database schema
-- [x] Swagger UI
-- [ ] Import complete Bible
+Responsibilities:
 
-### Phase 2
-
-- [ ] REST API improvements
-- [ ] Validation
-- [ ] Error handling
-
-### Phase 3
-
-- [ ] SQL optimization
-- [ ] Indexes
-- [ ] Query optimization
-
-### Phase 4
-
-- [ ] JWT Authentication
-
-### Phase 5
-
-- [ ] Search API
-
-### Phase 6
-
-- [ ] Bookmarks
-
-### Phase 7
-
-- [ ] Notes
-
-### Phase 8
-
-- [ ] Redis
-
-### Phase 9
-
-- [ ] Docker
-
-### Phase 10
-
-- [ ] AI Agent Integration
+- Read user questions
+- Send them to Gemini
+- Receive Function Calls
+- Dispatch Python tools
+- Execute the selected tool
+- Return structured results
 
 ---
 
-## Long-Term Vision
+## Current Status
 
-Or-Chokhmah aims to become an AI-powered Bible study platform.
+Implemented:
 
-The backend will expose reliable APIs that can be used as tools by AI agents rather than relying solely on an LLM's internal knowledge. Planned capabilities include:
+- Backend API
+- PostgreSQL integration
+- HTTP client
+- Python tools
+- Gemini Function Calling
+- Manual tool dispatcher
 
-- Verse retrieval
-- Bible search
-- Context retrieval
-- Personalized study
-- Reading history
-- Tool calling
+Planned:
+
+- Complete tool response loop
+- Conversation memory
 - Retrieval-Augmented Generation (RAG)
-
-This follows an architecture where the AI agent orchestrates backend APIs instead of replacing them, allowing grounded, trustworthy responses. :contentReference[oaicite:1]{index=1}
-
----
-
-## Dataset
-
-Bible text is imported from the World English Bible (WEB) dataset.
-
-The importer loads JSON files into a normalized PostgreSQL schema.
+- Multi-tool orchestration
+- Multi-agent workflows
+- Model Context Protocol (MCP)
 
 ---
 
-## Author
+## Learning Goals
 
-Nitheesh
+This project focuses on understanding:
 
-Backend Engineering • FastAPI • PostgreSQL • Python
+- Backend Engineering
+- REST APIs
+- Tool Calling
+- AI Agents
+- LLM Orchestration
+- Agentic Engineering
+
+instead of relying on high-level frameworks.
