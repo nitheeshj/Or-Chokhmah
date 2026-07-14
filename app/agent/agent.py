@@ -87,20 +87,20 @@ if response.function_calls:
 
 # NOW result exists
 
-print("\n========== TOOL CALL ==========\n")
+    print("\n========== TOOL CALL ==========\n")
 
-print("Tool Name:")
-print(tool_name)
+    print("Tool Name:")
+    print(tool_name)
 
-print()
+    print()
 
-print("Arguments:")
-print(arguments)
+    print("Arguments:")
+    print(arguments)
 
-print()
+    print()
 
-print("Tool Result:")
-print(result)
+    print("Tool Result:")
+    print(result)
 
 # --------------------------------------------
 # Build the conversation history
@@ -114,54 +114,60 @@ print(result)
 # Gemini can now continue reasoning.
 # --------------------------------------------
 
-history = [
+    history = [
 
-    # Original user question
-    types.Content(
-        role="user",
-        parts=[
-            types.Part(text=question)
-        ]
-    ),
+        # Original user question
+        types.Content(
+            role="user",
+            parts=[
+                types.Part(text=question)
+            ]
+        ),
 
-    # Gemini's previous response
-    response.candidates[0].content,
+        # Gemini's previous response
+        response.candidates[0].content,
 
-    # Tool result
-    types.Content(
-        role="user",
-        parts=[
-            types.Part.from_function_response(
-                name=tool_name,
-                response={
-                    "result": result
-                }
-            )
-        ]
+        # Tool result
+        types.Content(
+            role="user",
+            parts=[
+                types.Part.from_function_response(
+                    name=tool_name,
+                    response={
+                        "result": result
+                    }
+                )
+            ]
+        )
+    ]
+
+    # --------------------------------------------
+    # Second Gemini call
+    #
+    # Gemini now receives the tool result and
+    # generates the final natural-language answer.
+    # --------------------------------------------
+
+    final_response = client.models.generate_content(
+
+        model="gemini-flash-latest",
+
+        contents=history,
+
+        config=types.GenerateContentConfig(
+
+            tools=[tool]
+
+        )
+
     )
-]
 
-# --------------------------------------------
-# Second Gemini call
-#
-# Gemini now receives the tool result and
-# generates the final natural-language answer.
-# --------------------------------------------
+    print("\n========== FINAL ANSWER ==========\n")
 
-final_response = client.models.generate_content(
+    print(final_response.text)
 
-    model="gemini-flash-latest",
+else:
 
-    contents=history,
-
-    config=types.GenerateContentConfig(
-
-        tools=[tool]
-
-    )
-
-)
-
-print("\n========== FINAL ANSWER ==========\n")
-
-print(final_response.text)
+    # Gemini didn't need any tool
+    print("\n========== GEMINI RESPONSE ==========\n")
+    print(response.text)
